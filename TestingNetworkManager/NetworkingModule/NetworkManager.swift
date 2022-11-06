@@ -277,7 +277,7 @@ final class NetworkManager: HTTPServiceProtocol {
     }
     
     func delete(to urlString: String, with parameter: [String: Any]) async throws {
-        let url = URL(string: urlString)
+        let url = URL(string: baseURL + urlString)
         guard let url = url else { throw ServerError.notFound }
         
         var urlRequest = authorizedRequest(from: url)
