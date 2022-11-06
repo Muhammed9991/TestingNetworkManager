@@ -48,6 +48,7 @@ final class NetworkManager: HTTPServiceProtocol {
     static let shared = NetworkManager()
     let session = URLSession.shared
     let authManager =  AuthManager()
+    public typealias Parameters = [String: Any]
     
     func get<T: Decodable>(with urlString: String) async throws -> (T, URLResponse) {
         let url = URL(string: urlString)
@@ -72,8 +73,9 @@ final class NetworkManager: HTTPServiceProtocol {
         return (try JSONDecoder().decode(T.self, from: data), response)
     }
     
-    func post(with urlString: String, with parameter: [String: Any]) async throws -> URLResponse {
-        let url = URL(string: urlString)
+    func post(with urlString: String, with parameter: Parameters) async throws -> URLResponse {
+        let completeURL = baseURL + urlString
+        let url = URL(string: completeURL)
         guard let url = url else { throw ServerError.notFound }
         
         var urlRequest = try await authorizedRequest(from: url)
@@ -100,8 +102,8 @@ final class NetworkManager: HTTPServiceProtocol {
         return response
     }
     
-    func put(with urlString: String, with parameter: [String: Any]) async throws -> URLResponse {
-        let url = URL(string: urlString)
+    func put(with urlString: String, with parameter: Parameters) async throws -> URLResponse {
+        let url = URL(string: baseURL + urlString)
         guard let url = url else { throw ServerError.notFound }
         
         var urlRequest = try await authorizedRequest(from: url)
@@ -128,8 +130,8 @@ final class NetworkManager: HTTPServiceProtocol {
         return response
     }
     
-    func patch(with urlString: String, with parameter: [String: Any]) async throws -> URLResponse {
-        let url = URL(string: urlString)
+    func patch(with urlString: String, with parameter: Parameters) async throws -> URLResponse {
+        let url = URL(string: baseURL + urlString)
         guard let url = url else { throw ServerError.notFound }
         
         var urlRequest = try await authorizedRequest(from: url)
@@ -156,8 +158,8 @@ final class NetworkManager: HTTPServiceProtocol {
         return response
     }
     
-    func performUpdate(with method: HTTPMethod, with urlString: String, with parameter: [String: Any]) async throws -> URLResponse {
-        let url = URL(string: urlString)
+    func performUpdate(with method: HTTPMethod, with urlString: String, with parameter: Parameters) async throws -> URLResponse {
+        let url = URL(string: baseURL + urlString)
         guard let url = url else { throw ServerError.notFound }
         
         var urlRequest = try await authorizedRequest(from: url)
