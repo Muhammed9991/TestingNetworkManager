@@ -70,7 +70,7 @@ final class NetworkManager: HTTPServiceProtocol {
             }
         }
         
-        return (try JSONDecoder().decode(T.self, from: data), response)
+        return try JSONDecoder().decode(T.self, from: data)
     }
     
     func post(with urlString: String, with parameter: Parameters) async throws -> URLResponse {
