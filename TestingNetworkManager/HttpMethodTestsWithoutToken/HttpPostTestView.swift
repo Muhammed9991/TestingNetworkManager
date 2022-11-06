@@ -11,7 +11,7 @@ import SwiftUI
  SEEMS TO BE WORKING!!!!
  */
 
-// POST URL: https://jsonplaceholder.typicode.com/posts
+// POST URL: http://127.0.0.1:8000/posts
 
 struct HttpPostTestView: View {
     var body: some View {
@@ -25,18 +25,18 @@ struct HttpPostTestView: View {
         .task {
             do {
                 let parameters: [String: Any] = [
-                    "userId": 1,
-                    "id": 1,
-                    "title": "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-                    "body": "quia et suscipit suscipit recusandae consequuntur expedita et cum reprehenderit molestiae ut ut quas totam nostrum rerum est autem sunt rem eveniet architecto"
+                    "title": "Post Created in Xcode",
+                    "content": "content of Xcode Post"
                 ]
-                let data = try await NetworkManager.shared.post(with: "https://jsonplaceholder.typicode.com/posts", with: parameters)
+                let response = try await NetworkManager.shared.post(
+                    with: PostApi.createPost.path,
+                    with: parameters
+                )
                 
-                let _ = print("Data Response Object", data)
-
+                let _ = print("response: ", response)
                
             } catch {
-                print(error)
+                print("ERROR: ",error)
             }
         }
     }
