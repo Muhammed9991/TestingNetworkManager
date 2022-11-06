@@ -35,6 +35,14 @@ protocol HTTPServiceProtocol {
     func refreshTokenAndReTryDeleteRequest(with url: URL) async throws
 }
 
+struct JwtTokenDTO: Codable {
+    let accessToken: String
+
+    enum CodingKeys: String, CodingKey {
+        case accessToken = "access_token"
+    }
+}
+
 final class NetworkManager: HTTPServiceProtocol {
     
     static let shared = NetworkManager()
