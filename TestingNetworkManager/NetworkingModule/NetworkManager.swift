@@ -50,8 +50,79 @@ final class NetworkManager: HTTPServiceProtocol {
     let authManager =  AuthManager()
     public typealias Parameters = [String: Any]
     
-    func get<T: Decodable>(with urlString: String) async throws -> (T, URLResponse) {
-        let url = URL(string: urlString)
+    var baseURL: String {
+        /*
+         Hardcoding local host for now as no real API exists
+         */
+        #if DEBUG
+        return "http://127.0.0.1:8000"
+        #else
+        return "http://127.0.0.1:8000"
+        #endif
+    }
+    
+    func convertFormField(named name: String, value: String, using boundary: String) -> String {
+        var fieldString = "--\(boundary)\r\n"
+        fieldString += "Content-Disposition: form-data; name=\"\(name)\"\r\n"
+        fieldString += "\r\n"
+        fieldString += "\(value)\r\n"
+        
+        return fieldString
+    }
+    
+    func getParameterBodyTest(with parameters: [String: Any], boundary: String) -> Data? {
+        print("getParameterBodyTest(boundary): ", boundary)
+        do {
+            
+            var data = try JSONSerialization.data(withJSONObject: parameters, options: .prettyPrinted)
+            for (key, value) in parameters {
+                data.append(convertFormField(named: key, value: "\(value)", using: boundary).data(using: .utf8)!)
+            }
+            data.append("--\(boundary)--".data(using: .utf8)!)
+            
+            return data
+        } catch {
+            print(error)
+            return nil
+        }
+    }
+    
+    func login(with urlString: String, with parameter: Parameters) async throws -> (String, URLResponse) {
+        let boundary = "Boundary-\(UUID().uuidString)"
+        let url = URL(string: baseURL + urlString)
+        guard let url = url else { throw ServerError.notFound }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = HTTPMethod.post.rawValue
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+
+        var data = Data()
+        for (key, value) in parameter {
+            data.append(convertFormField(named: key, value: "\(value)", using: boundary).data(using: .utf8)!)
+        }
+        data.append("--\(boundary)--".data(using: .utf8)!)
+        
+        let (responseData , response) = try await session.upload(
+            for: request,
+            from: data
+        )
+        
+        if let httpResponse = response as? HTTPURLResponse {
+            switch httpResponse.statusCode {
+            case HTTPStatus.created.rawValue, HTTPStatus.okay.rawValue:
+                break
+            default:
+                throw ServerError.notFound
+            }
+        }
+        
+        let returnJSON = try JSONDecoder().decode(JwtTokenDTO.self, from: responseData)
+        
+        return (returnJSON.accessToken, response)
+    }
+    
+    func get<T: Decodable>(with urlString: String) async throws -> T {
+        let url = URL(string: baseURL + urlString)
         guard let url = url else { throw ServerError.notFound }
         
         var urlRequest = authorizedRequest(from: url)
