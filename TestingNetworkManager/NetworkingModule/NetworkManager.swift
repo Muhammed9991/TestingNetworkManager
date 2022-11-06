@@ -54,7 +54,7 @@ final class NetworkManager: HTTPServiceProtocol {
         let url = URL(string: urlString)
         guard let url = url else { throw ServerError.notFound }
         
-        var urlRequest = try await authorizedRequest(from: url)
+        var urlRequest = authorizedRequest(from: url)
         urlRequest.httpMethod = HTTPMethod.get.rawValue
         
         let (data, response) = try await  session.data(for: urlRequest)
@@ -78,7 +78,7 @@ final class NetworkManager: HTTPServiceProtocol {
         let url = URL(string: completeURL)
         guard let url = url else { throw ServerError.notFound }
         
-        var urlRequest = try await authorizedRequest(from: url)
+        var urlRequest = authorizedRequest(from: url)
         urlRequest.httpMethod = HTTPMethod.post.rawValue
         
         guard let data = getParameterBody(with: parameter) else { throw ServerError.generic }
@@ -106,7 +106,7 @@ final class NetworkManager: HTTPServiceProtocol {
         let url = URL(string: baseURL + urlString)
         guard let url = url else { throw ServerError.notFound }
         
-        var urlRequest = try await authorizedRequest(from: url)
+        var urlRequest = authorizedRequest(from: url)
         urlRequest.httpMethod = HTTPMethod.put.rawValue
         
         guard let data = getParameterBody(with: parameter) else { throw ServerError.generic }
@@ -134,7 +134,7 @@ final class NetworkManager: HTTPServiceProtocol {
         let url = URL(string: baseURL + urlString)
         guard let url = url else { throw ServerError.notFound }
         
-        var urlRequest = try await authorizedRequest(from: url)
+        var urlRequest = authorizedRequest(from: url)
         urlRequest.httpMethod = HTTPMethod.put.rawValue
         
         guard let data = getParameterBody(with: parameter) else { throw ServerError.generic }
@@ -162,7 +162,7 @@ final class NetworkManager: HTTPServiceProtocol {
         let url = URL(string: baseURL + urlString)
         guard let url = url else { throw ServerError.notFound }
         
-        var urlRequest = try await authorizedRequest(from: url)
+        var urlRequest = authorizedRequest(from: url)
         urlRequest.httpMethod = method.rawValue
         
         guard let data = getParameterBody(with: parameter) else { throw ServerError.generic }
@@ -209,7 +209,7 @@ final class NetworkManager: HTTPServiceProtocol {
         let url = URL(string: urlString)
         guard let url = url else { throw ServerError.notFound }
         
-        var urlRequest = try await authorizedRequest(from: url)
+        var urlRequest = authorizedRequest(from: url)
         urlRequest.httpMethod = HTTPMethod.get.rawValue
         
         let (_, response) = try await  session.data(for: urlRequest)
@@ -226,7 +226,7 @@ final class NetworkManager: HTTPServiceProtocol {
         }
     }
     
-    func authorizedRequest(from url: URL) async throws -> URLRequest {
+    func authorizedRequest(from url: URL) -> URLRequest {
         var urlRequest = URLRequest(url: url)
         let token = token // TODO: Needs to be access from wherever its stored
         urlRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
