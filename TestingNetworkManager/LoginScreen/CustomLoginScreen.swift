@@ -18,9 +18,6 @@ import SwiftUI
 
 let lightGreyColor = Color(red: 239.0/255.0, green: 243.0/255.0, blue: 244.0/255.0, opacity: 1.0)
 
-let storedUsername = "Myusername"
-let storedPassword = "Mypassword"
-
 struct CustomLoginScreen: View {
     @State private var username: String = ""
     @State private var password: String = ""
@@ -48,15 +45,19 @@ struct CustomLoginScreen: View {
                 Button {
                     print("Login Button tapped")
                     Task {
-                        var data: Welcome
                         do {
-                            (data , _) = try await NetworkManager.shared.get(
-                                with: " "
+                            let response = try await NetworkManager.shared.login(
+                                with: LoginApi.logIn.path,
+                                with: [
+                                    "username": "hello@gmail.com",
+                                    "password": "12345"
+                                ]
                             )
                             authenticationDidSucceed = true
-                            let _ = print("dataObject: ", data)
+                            let _ = print("response: ", response)
                         } catch {
                             authenticationDidFail = true
+                            print("ERROR:", error)
                         }
                     }
                     dimissKeyboard = false
