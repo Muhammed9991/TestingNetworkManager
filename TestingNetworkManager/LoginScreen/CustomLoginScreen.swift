@@ -46,7 +46,7 @@ struct CustomLoginScreen: View {
                     print("Login Button tapped")
                     Task {
                         do {
-                            let response = try await NetworkManager.shared.login(
+                            let token = try await NetworkManager.shared.login(
                                 with: LoginApi.logIn.path,
                                 with: [
                                     "username": "hello@gmail.com",
@@ -54,7 +54,7 @@ struct CustomLoginScreen: View {
                                 ]
                             )
                             authenticationDidSucceed = true
-                            let _ = print("response: ", response)
+                            let _ = print("token: ", token)
                         } catch {
                             authenticationDidFail = true
                             print("ERROR:", error)
