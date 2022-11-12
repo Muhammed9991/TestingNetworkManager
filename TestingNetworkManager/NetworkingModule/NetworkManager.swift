@@ -70,23 +70,6 @@ final class NetworkManager: HTTPServiceProtocol {
         return fieldString
     }
     
-    func getParameterBodyTest(with parameters: [String: Any], boundary: String) -> Data? {
-        print("getParameterBodyTest(boundary): ", boundary)
-        do {
-            
-            var data = try JSONSerialization.data(withJSONObject: parameters, options: .prettyPrinted)
-            for (key, value) in parameters {
-                data.append(convertFormField(named: key, value: "\(value)", using: boundary).data(using: .utf8)!)
-            }
-            data.append("--\(boundary)--".data(using: .utf8)!)
-            
-            return data
-        } catch {
-            print(error)
-            return nil
-        }
-    }
-    
     func login(with urlString: String, with parameter: Parameters) async throws -> (String, URLResponse) {
         let boundary = "Boundary-\(UUID().uuidString)"
         let url = URL(string: baseURL + urlString)
