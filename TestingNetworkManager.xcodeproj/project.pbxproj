@@ -17,6 +17,7 @@
 		7962CCB72916B21D00D4BB12 /* HttpPostTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7962CCB62916B21D00D4BB12 /* HttpPostTestView.swift */; };
 		7962CCC22916B89500D4BB12 /* CustomLoginScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7962CCC12916B89500D4BB12 /* CustomLoginScreen.swift */; };
 		7962CCC42916F86500D4BB12 /* APIEndPoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7962CCC32916F86500D4BB12 /* APIEndPoints.swift */; };
+		7979D4FC291FE70700BF059F /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7979D4FB291FE70700BF059F /* KeychainHelper.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +32,7 @@
 		7962CCB62916B21D00D4BB12 /* HttpPostTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HttpPostTestView.swift; sourceTree = "<group>"; };
 		7962CCC12916B89500D4BB12 /* CustomLoginScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomLoginScreen.swift; sourceTree = "<group>"; };
 		7962CCC32916F86500D4BB12 /* APIEndPoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIEndPoints.swift; sourceTree = "<group>"; };
+		7979D4FB291FE70700BF059F /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,6 +72,7 @@
 				7962CCA42916ABCC00D4BB12 /* Assets.xcassets */,
 				7962CCA62916ABCC00D4BB12 /* Preview Content */,
 				7962CCBE2916B51B00D4BB12 /* LoginScreen */,
+				7979D4FB291FE70700BF059F /* KeychainHelper.swift */,
 			);
 			path = TestingNetworkManager;
 			sourceTree = "<group>";
@@ -183,6 +186,7 @@
 				7962CCA32916ABCC00D4BB12 /* HttpGetTestView.swift in Sources */,
 				7962CCA12916ABCC00D4BB12 /* TestingNetworkManagerApp.swift in Sources */,
 				7962CCB12916AC2800D4BB12 /* HttpStatus.swift in Sources */,
+				7979D4FC291FE70700BF059F /* KeychainHelper.swift in Sources */,
 				7962CCC22916B89500D4BB12 /* CustomLoginScreen.swift in Sources */,
 				7962CCB72916B21D00D4BB12 /* HttpPostTestView.swift in Sources */,
 				7962CCB32916AC5D00D4BB12 /* AuthManager.swift in Sources */,
