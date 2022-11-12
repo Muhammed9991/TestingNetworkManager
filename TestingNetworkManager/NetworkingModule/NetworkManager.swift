@@ -20,6 +20,10 @@ enum ServerError: Error {
 }
 
 protocol HTTPServiceProtocol {
+    typealias Token = String
+    
+    func login(with urlString: String, with parameter: Parameters) async throws -> Token
+    
     func get<T: Decodable>(with urlString: String) async throws -> T
     func post(with urlString: String, with parameter: [String: Any]) async throws -> URLResponse
     func put(with urlString: String, with parameter: [String: Any]) async throws -> URLResponse
@@ -49,6 +53,7 @@ final class NetworkManager: HTTPServiceProtocol {
     let session = URLSession.shared
     let authManager =  AuthManager()
     public typealias Parameters = [String: Any]
+    typealias Token = String
     
     var baseURL: String {
         /*
@@ -70,7 +75,7 @@ final class NetworkManager: HTTPServiceProtocol {
         return fieldString
     }
     
-    func login(with urlString: String, with parameter: Parameters) async throws -> (String, URLResponse) {
+    func login(with urlString: String, with parameter: Parameters) async throws -> Token {
         let boundary = "Boundary-\(UUID().uuidString)"
         let url = URL(string: baseURL + urlString)
         guard let url = url else { throw ServerError.notFound }
@@ -100,8 +105,7 @@ final class NetworkManager: HTTPServiceProtocol {
         }
         
         let returnJSON = try JSONDecoder().decode(JwtTokenDTO.self, from: responseData)
-        
-        return (returnJSON.accessToken, response)
+        return returnJSON.accessToken
     }
     
     func get<T: Decodable>(with urlString: String) async throws -> T {
