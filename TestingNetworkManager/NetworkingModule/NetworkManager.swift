@@ -20,22 +20,23 @@ enum ServerError: Error {
 }
 
 protocol HTTPServiceProtocol {
+    typealias Parameters = [String: Any]
     typealias Token = String
     
     func login(with urlString: String, with parameter: Parameters) async throws -> Token
     
     func get<T: Decodable>(with urlString: String) async throws -> T
-    func post(with urlString: String, with parameter: [String: Any]) async throws -> URLResponse
-    func put(with urlString: String, with parameter: [String: Any]) async throws -> URLResponse
-    func patch(with urlString: String, with parameter: [String: Any]) async throws -> URLResponse
-    func delete(to urlString: String, with parameter: [String: Any]) async throws
+    func post(with urlString: String, with parameter: Parameters) async throws -> URLResponse
+    func put(with urlString: String, with parameter: Parameters) async throws -> URLResponse
+    func patch(with urlString: String, with parameter: Parameters) async throws -> URLResponse
+    func delete(to urlString: String, with parameter: Parameters) async throws
     
     func authorizedRequest(from url: URL) async throws -> URLRequest
     
     func refreshTokenAndReTryGetRequest<T: Decodable>(with url: URL) async throws -> T
-    func refreshTokenAndRetryPostRequest(with url: URL, with parameter: [String: Any]) async throws -> URLResponse
-    func refreshTokenAndRetryPutRequest(with url: URL, with parameter: [String: Any]) async throws -> URLResponse
-    func refreshTokenAndRetryPatchRequest(with url: URL, with parameter: [String: Any]) async throws -> URLResponse
+    func refreshTokenAndRetryPostRequest(with url: URL, with parameter: Parameters) async throws -> URLResponse
+    func refreshTokenAndRetryPutRequest(with url: URL, with parameter: Parameters) async throws -> URLResponse
+    func refreshTokenAndRetryPatchRequest(with url: URL, with parameter: Parameters) async throws -> URLResponse
     func refreshTokenAndReTryDeleteRequest(with url: URL) async throws
 }
 
@@ -52,7 +53,7 @@ final class NetworkManager: HTTPServiceProtocol {
     static let shared = NetworkManager()
     let session = URLSession.shared
     let authManager =  AuthManager()
-    public typealias Parameters = [String: Any]
+    typealias Parameters = [String: Any]
     typealias Token = String
     
     var baseURL: String {
