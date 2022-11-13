@@ -120,6 +120,18 @@ actor AuthManager {
         return password
     }
     
+    func deleteToken(service: String, account: String) throws {
+        let query: [String: AnyObject] = [
+            kSecAttrService as String: service as AnyObject,
+            kSecAttrAccount as String: account as AnyObject,
+            kSecClass as String: kSecClassGenericPassword
+        ]
+        
+        let status = SecItemDelete(query as CFDictionary)
+        
+        guard status == errSecSuccess else {
+            throw KeychainError.unexpectedStatus(status)
+        }
     }
     
     func refreshToken() async throws -> Token {
