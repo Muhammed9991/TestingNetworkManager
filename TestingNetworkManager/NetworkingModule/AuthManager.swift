@@ -27,6 +27,30 @@ actor AuthManager {
     private init() {}
     
     private var currentToken: Token?
+    func saveToken(item: Data, service: String, account: String) async throws {
+        
+        let query: [String: AnyObject] = [
+            
+            kSecAttrService as String: service as AnyObject,
+            kSecAttrAccount as String: account as AnyObject,
+            kSecClass as String: kSecClassGenericPassword,
+            kSecValueData as String: item as AnyObject
+        ]
+        
+        let status = SecItemAdd(
+            query as CFDictionary,
+            nil
+        )
+        
+        if status == errSecDuplicateItem {
+            try await updateToken(item: item, service: service, account: account)
+        } else if  status == errSecSuccess {
+            throw KeychainError.unexpectedStatus(status)
+        }
+        
+        currentToken = try await updateToken()
+    }
+    
     func updateToken(item: Data, service: String, account: String) async throws {
         let query: [String: AnyObject] = [
             kSecAttrService as String: service as AnyObject,
