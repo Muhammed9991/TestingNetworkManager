@@ -52,7 +52,6 @@ final class NetworkManager: HTTPServiceProtocol {
     
     static let shared = NetworkManager()
     let session = URLSession.shared
-    let authManager =  AuthManager()
     typealias Parameters = [String: Any]
     typealias Token = String
     
@@ -113,7 +112,7 @@ final class NetworkManager: HTTPServiceProtocol {
         let url = URL(string: baseURL + urlString)
         guard let url = url else { throw ServerError.notFound }
         
-        var urlRequest = authorizedRequest(from: url)
+        var urlRequest = try await authorizedRequest(from: url)
         urlRequest.httpMethod = HTTPMethod.get.rawValue
         
         let (data, response) = try await  session.data(for: urlRequest)
@@ -137,7 +136,7 @@ final class NetworkManager: HTTPServiceProtocol {
         let url = URL(string: completeURL)
         guard let url = url else { throw ServerError.notFound }
         
-        var urlRequest = authorizedRequest(from: url)
+        var urlRequest = try await authorizedRequest(from: url)
         urlRequest.httpMethod = HTTPMethod.post.rawValue
         
         guard let data = getParameterBody(with: parameter) else { throw ServerError.generic }
@@ -165,7 +164,7 @@ final class NetworkManager: HTTPServiceProtocol {
         let url = URL(string: baseURL + urlString)
         guard let url = url else { throw ServerError.notFound }
         
-        var urlRequest = authorizedRequest(from: url)
+        var urlRequest = try await authorizedRequest(from: url)
         urlRequest.httpMethod = HTTPMethod.put.rawValue
         
         guard let data = getParameterBody(with: parameter) else { throw ServerError.generic }
@@ -193,7 +192,7 @@ final class NetworkManager: HTTPServiceProtocol {
         let url = URL(string: baseURL + urlString)
         guard let url = url else { throw ServerError.notFound }
         
-        var urlRequest = authorizedRequest(from: url)
+        var urlRequest = try await authorizedRequest(from: url)
         urlRequest.httpMethod = HTTPMethod.put.rawValue
         
         guard let data = getParameterBody(with: parameter) else { throw ServerError.generic }
@@ -221,7 +220,7 @@ final class NetworkManager: HTTPServiceProtocol {
         let url = URL(string: baseURL + urlString)
         guard let url = url else { throw ServerError.notFound }
         
-        var urlRequest = authorizedRequest(from: url)
+        var urlRequest = try await authorizedRequest(from: url)
         urlRequest.httpMethod = method.rawValue
         
         guard let data = getParameterBody(with: parameter) else { throw ServerError.generic }
@@ -246,7 +245,7 @@ final class NetworkManager: HTTPServiceProtocol {
     }
     
     func refreshTokenAndRetryUpdate(with method: HTTPMethod, with url: URL, with parameter: [String: Any]) async throws -> URLResponse {
-        let token = try await AuthManager().refreshToken()
+        let token = try await AuthManager.shared.refreshToken()
         var urlRequest = URLRequest(url: url)
         urlRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         urlRequest.httpMethod = method.rawValue
@@ -268,7 +267,7 @@ final class NetworkManager: HTTPServiceProtocol {
         let url = URL(string: baseURL + urlString)
         guard let url = url else { throw ServerError.notFound }
         
-        var urlRequest = authorizedRequest(from: url)
+        var urlRequest = try await authorizedRequest(from: url)
         urlRequest.httpMethod = HTTPMethod.get.rawValue
         
         let (_, response) = try await  session.data(for: urlRequest)
@@ -285,15 +284,21 @@ final class NetworkManager: HTTPServiceProtocol {
         }
     }
     
-    func authorizedRequest(from url: URL) -> URLRequest {
+    func authorizedRequest(from url: URL) async throws -> URLRequest {
         var urlRequest = URLRequest(url: url)
-        let token = token // TODO: Needs to be access from wherever its stored
-        urlRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        return urlRequest
+        do {
+            let token =  try await AuthManager.shared.getCurrentToken()
+            urlRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            return urlRequest
+            
+        } catch {
+            print("authorizedRequest ERROR: ", error)
+            throw ServerError.missingToken
+        }
     }
     
     func refreshTokenAndReTryGetRequest<T: Decodable>(with url: URL) async throws -> T {
-        let token = try await AuthManager().refreshToken()
+        let token = try await AuthManager.shared.refreshToken()
         var urlRequest = URLRequest(url: url)
         urlRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         
@@ -307,7 +312,7 @@ final class NetworkManager: HTTPServiceProtocol {
     }
     
     func refreshTokenAndRetryPostRequest(with url: URL, with parameter: [String: Any]) async throws -> URLResponse {
-            let token = try await AuthManager().refreshToken()
+        let token = try await AuthManager.shared.refreshToken()
             var urlRequest = URLRequest(url: url)
             urlRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
             urlRequest.httpMethod = HTTPMethod.post.rawValue
@@ -326,7 +331,7 @@ final class NetworkManager: HTTPServiceProtocol {
     }
     
     func refreshTokenAndRetryPutRequest(with url: URL, with parameter: [String: Any]) async throws -> URLResponse {
-            let token = try await AuthManager().refreshToken()
+        let token = try await AuthManager.shared.refreshToken()
             var urlRequest = URLRequest(url: url)
             urlRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
             urlRequest.httpMethod = HTTPMethod.put.rawValue
@@ -345,7 +350,7 @@ final class NetworkManager: HTTPServiceProtocol {
     }
     
     func refreshTokenAndRetryPatchRequest(with url: URL, with parameter: [String: Any]) async throws -> URLResponse {
-            let token = try await AuthManager().refreshToken()
+        let token = try await AuthManager.shared.refreshToken()
             var urlRequest = URLRequest(url: url)
             urlRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
             urlRequest.httpMethod = HTTPMethod.patch.rawValue
@@ -364,7 +369,7 @@ final class NetworkManager: HTTPServiceProtocol {
     }
     
     func refreshTokenAndReTryDeleteRequest(with url: URL) async throws {
-        let token = try await AuthManager().refreshToken()
+        let token = try await AuthManager.shared.refreshToken()
         var urlRequest = URLRequest(url: url)
         urlRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         
