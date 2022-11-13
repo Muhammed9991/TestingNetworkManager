@@ -28,14 +28,13 @@ actor AuthManager {
     private init() {}
     
     func getCurrentToken() async throws -> Token {
-        guard let currentToken else { throw ServerError.missingToken }
-        return currentToken
-    }
+    private var username: String?
+    private var password: String?
     
-    func updateTokenInAuthManager() async throws -> Token {
-        let tokenAsData = try await AuthManager.getToken(service: "access-token", account: "app")
-        currentToken = String(data: tokenAsData, encoding: .utf8)!
-        
+    func getCurrentToken() async throws -> Token {
+        let tokenAsData = try await getToken(service: "access-token", account: "app")
+        let currentToken = String(data: tokenAsData, encoding: .utf8)
+
         if let currentToken {
             return currentToken
         } else {
