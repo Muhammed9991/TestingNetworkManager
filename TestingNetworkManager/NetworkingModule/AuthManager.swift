@@ -26,9 +26,7 @@ actor AuthManager {
     static let shared = AuthManager()
     private init() {}
     
-    func validToken() async throws -> Token {
-        if let handle = refreshTask {
-            return try await handle.value
+    private var currentToken: Token?
         }
         
         guard let token = currentToken else {
