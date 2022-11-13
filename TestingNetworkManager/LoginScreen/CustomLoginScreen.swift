@@ -13,7 +13,8 @@ import SwiftUI
  
  Only do this when above is done.
  TODO: network request to get JWT token and save this inside keychain
- 
+ "username": "hello@gmail.com",
+ "password": "12345"
  */
 
 let lightGreyColor = Color(red: 239.0/255.0, green: 243.0/255.0, blue: 244.0/255.0, opacity: 1.0)
@@ -28,55 +29,72 @@ struct CustomLoginScreen: View {
     
     
     var body: some View {
-        ZStack {
-            VStack {
-                WelcomeText()
-                UserImage()
-                
-                UsernameTextField(username: $username, dismissKeyboard: $dimissKeyboard)
-                PasswordSecureField(password: $password, dismissKeyboard: $dimissKeyboard)
-                
-                if authenticationDidFail {
-                    Text("Information not correct. Try again.")
-                        .offset(y: -10)
-                        .foregroundColor(.red)
-                }
-                
-                Button {
-                    print("Login Button tapped")
-                    Task {
-                        do {
-                            let token = try await NetworkManager.shared.login(
-                                with: LoginApi.logIn.path,
-                                with: [
-                                    "username": "hello@gmail.com",
-                                    "password": "12345"
-                                ]
-                            )
-                            authenticationDidSucceed = true
-                            let _ = print("token: ", token)
-                        } catch {
-                            authenticationDidFail = true
-                            print("ERROR:", error)
-                        }
+        NavigationView {
+            ZStack {
+                VStack {
+                    WelcomeText()
+                    UserImage()
+                    
+                    UsernameTextField(username: $username, dismissKeyboard: $dimissKeyboard)
+                    PasswordSecureField(password: $password, dismissKeyboard: $dimissKeyboard)
+                    
+                    if authenticationDidFail {
+                        Text("Information not correct. Try again.")
+                            .offset(y: -10)
+                            .foregroundColor(.red)
                     }
-                    dimissKeyboard = false
-                } label: {
-                    LoginButtonContent()
+                    
+                    
+                    NavigationLink(destination: HttpGetTestView(), isActive: $authenticationDidSucceed) {
+                        EmptyView()
+                    }
+                    
+                    Button {
+                        print("Login Button tapped")
+                        Task {
+                            do {
+                                let accessToken = try await NetworkManager.shared.login(
+                                    with: LoginApi.logIn.path,
+                                    with: [
+                                        "username": "hello@gmail.com",
+                                        "password": "12345"
+                                    ]
+                                )
+                                
+                                username = "hello@gmail.com"
+                                password = "12345"
+                                authenticationDidSucceed = true
+                                let _ = print("token: ", accessToken)
+                                let _ = print("username: ", username)
+                                let _ = print("password: ", password)
+                                
+                                let accessTokenData = Data(accessToken.utf8)
+                                
+                                try await AuthManager.shared.saveToken(item: accessTokenData, service: "access-token", account: "app")
+                        
+                            } catch {
+                                authenticationDidFail = true
+                                print("ERROR:", error)
+                            }
+                        }
+                        dimissKeyboard = false
+                    } label: {
+                        LoginButtonContent()
+                    }
+                }
+                .padding()
+                
+                if authenticationDidSucceed {
+                    LoginSucceededPopUp()
                 }
             }
-            .padding()
-            
-            if authenticationDidSucceed {
-                LoginSucceededPopUp()
-            }
-        }
-        .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                Button("Done") {
-                    dimissKeyboard = false
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Button("Done") {
+                        dimissKeyboard = false
+                    }
+                    Spacer()
                 }
-                Spacer()
             }
         }
     }
