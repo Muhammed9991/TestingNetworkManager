@@ -89,17 +89,37 @@ actor AuthManager {
         
         currentToken = try await updateTokenInAuthManager()
     }
+    
+    static func getToken(service: String, account: String) async throws -> Data {
+        let query: [String: AnyObject] = [
+            kSecAttrService as String: service as AnyObject,
+            kSecAttrAccount as String: account as AnyObject,
+            kSecClass as String: kSecClassGenericPassword,
+            kSecMatchLimit as String: kSecMatchLimitOne,
+            kSecReturnData as String: kCFBooleanTrue
+        ]
+        
+        var itemCopy: AnyObject?
+        let status = SecItemCopyMatching(
+            query as CFDictionary,
+            &itemCopy
+        )
+        
+        guard status != errSecItemNotFound else {
+            throw KeychainError.itemNotFound
         }
         
-        guard let token = currentToken else {
-            throw ServerError.missingToken
+        guard status == errSecSuccess else {
+            throw KeychainError.unexpectedStatus(status)
         }
         
-        if token.isValid {
-            return token
+        guard let password = itemCopy as? Data else {
+            throw KeychainError.invalidItemFormat
         }
         
-        return try await refreshToken()
+        return password
+    }
+    
     }
     
     func refreshToken() async throws -> Token {
