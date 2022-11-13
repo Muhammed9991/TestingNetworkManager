@@ -42,15 +42,18 @@ struct HttpGetTestView: View {
     @State private var title: String = ""
     @State private var content: String = ""
     @State private var id: Int = 1
+    @State private var createdAt: String = ""
+    
     
     var body: some View {
         VStack {
-            Text("User with the id \(id) just published")
+                
+            Text(title)
                 .font(.title)
                 .padding()
             VStack{
-                Text("Title: \(title)")
-                Text("\(content)")
+                Text(content)
+                Text(createdAt)
             }
             
             Spacer()
@@ -65,14 +68,18 @@ struct HttpGetTestView: View {
                 title = data.title
                 content = data.content
                 id = data.id
-                let _ = print("data.title:", data.title)
-                let _ = print("data.content:", data.content)
-                let _ = print("data.id:", data.id)
-                let _ = print("data.createdAt:", data.createdAt)
+                
+                let _ = print("------------------------------------------")
                 let _ = print("Complete Data Object:", data)
+                let _ = print("------------------------------------------")
+                title = "User with the id \(data.id) just published"
+                content = data.content
+                createdAt = data.createdAt
                
+            } catch ServerError.missingToken {
+                title = "ERROR: \(ServerError.missingToken)"
             } catch {
-                print(error)
+                title = "ERROR: \(error)"
             }
         }
     }
