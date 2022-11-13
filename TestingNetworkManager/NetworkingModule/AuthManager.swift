@@ -23,8 +23,8 @@ enum KeychainError: Error {
 }
 
 actor AuthManager {
-    private var currentToken: Token?  // Should be from keychain (just an example)
-    private var refreshTask: Task<Token, Error>?
+    static let shared = AuthManager()
+    private init() {}
     
     func validToken() async throws -> Token {
         if let handle = refreshTask {
