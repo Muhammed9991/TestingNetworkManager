@@ -88,7 +88,7 @@ actor AuthManager {
         }
     }
     
-    static func getToken(service: String, account: String) async throws -> Data {
+     func getToken(service: String, account: String) async throws -> Data {
         let query: [String: AnyObject] = [
             kSecAttrService as String: service as AnyObject,
             kSecAttrAccount as String: account as AnyObject,
