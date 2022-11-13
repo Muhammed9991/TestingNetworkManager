@@ -27,6 +27,32 @@ actor AuthManager {
     private init() {}
     
     private var currentToken: Token?
+    func updateToken(item: Data, service: String, account: String) async throws {
+        let query: [String: AnyObject] = [
+            kSecAttrService as String: service as AnyObject,
+            kSecAttrAccount as String: account as AnyObject,
+            kSecClass as String: kSecClassGenericPassword
+        ]
+        
+        let attributes: [String: AnyObject] = [
+            kSecValueData as String: item as AnyObject
+        ]
+        
+        let status = SecItemUpdate(
+            query as CFDictionary,
+            attributes as CFDictionary
+        )
+        
+        guard status != errSecItemNotFound else {
+            throw KeychainError.itemNotFound
+        }
+        
+        guard status == errSecSuccess else {
+            throw KeychainError.unexpectedStatus(status)
+        }
+        
+        currentToken = try await updateToken()
+    }
         }
         
         guard let token = currentToken else {
