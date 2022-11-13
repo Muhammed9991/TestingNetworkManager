@@ -27,6 +27,18 @@ actor AuthManager {
     private init() {}
     
     private var currentToken: Token?
+    
+    func updateTokenInAuthManager() async throws -> Token {
+        let tokenAsData = try await AuthManager.getToken(service: "access-token", account: "app")
+        currentToken = String(data: tokenAsData, encoding: .utf8)!
+        
+        if let currentToken {
+            return currentToken
+        } else {
+            throw ServerError.invalidAuthToken
+        }
+    }
+
     func saveToken(item: Data, service: String, account: String) async throws {
         
         let query: [String: AnyObject] = [
@@ -48,7 +60,7 @@ actor AuthManager {
             throw KeychainError.unexpectedStatus(status)
         }
         
-        currentToken = try await updateToken()
+        currentToken = try await updateTokenInAuthManager()
     }
     
     func updateToken(item: Data, service: String, account: String) async throws {
@@ -75,7 +87,7 @@ actor AuthManager {
             throw KeychainError.unexpectedStatus(status)
         }
         
-        currentToken = try await updateToken()
+        currentToken = try await updateTokenInAuthManager()
     }
         }
         
