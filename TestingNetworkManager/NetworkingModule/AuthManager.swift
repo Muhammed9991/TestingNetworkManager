@@ -23,6 +23,7 @@ enum KeychainError: Error {
 }
 
 actor AuthManager {
+    typealias Token = String
     static let shared = AuthManager()
     private init() {}
     
