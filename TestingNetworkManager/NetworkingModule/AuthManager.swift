@@ -27,7 +27,6 @@ actor AuthManager {
     static let shared = AuthManager()
     private init() {}
     
-    func getCurrentToken() async throws -> Token {
     private var username: String?
     private var password: String?
     
@@ -62,8 +61,6 @@ actor AuthManager {
         } else if  status == errSecSuccess {
             throw KeychainError.unexpectedStatus(status)
         }
-        
-        currentToken = try await updateTokenInAuthManager()
     }
     
     func updateToken(item: Data, service: String, account: String) async throws {
@@ -89,8 +86,6 @@ actor AuthManager {
         guard status == errSecSuccess else {
             throw KeychainError.unexpectedStatus(status)
         }
-        
-        currentToken = try await updateTokenInAuthManager()
     }
     
     static func getToken(service: String, account: String) async throws -> Data {
