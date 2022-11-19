@@ -33,7 +33,7 @@ protocol HTTPServiceProtocol {
     
     func authorizedRequest(from url: URL) async throws -> URLRequest
     
-    func refreshTokenAndReTryGetRequest<T: Decodable>(with url: URL, currentToken: Token) async throws -> T
+    func refreshTokenAndReTryGetRequest<T: Decodable>(with url: URL) async throws -> T
     func refreshTokenAndRetryPostRequest(with url: URL, with parameter: Parameters) async throws -> URLResponse
     func refreshTokenAndRetryPutRequest(with url: URL, with parameter: Parameters) async throws -> URLResponse
     func refreshTokenAndRetryPatchRequest(with url: URL, with parameter: Parameters) async throws -> URLResponse
@@ -128,7 +128,7 @@ final class NetworkManager: HTTPServiceProtocol {
             case HTTPStatus.okay.rawValue:
                 break
             case HTTPStatus.unauthorized.rawValue:
-                return try await refreshTokenAndReTryGetRequest(with: url, currentToken: "")
+                return try await refreshTokenAndReTryGetRequest(with: url)
             default:
                 throw ServerError.notFound
             }
@@ -303,7 +303,7 @@ final class NetworkManager: HTTPServiceProtocol {
         }
     }
     
-    func refreshTokenAndReTryGetRequest<T: Decodable>(with url: URL, currentToken: Token) async throws -> T {
+    func refreshTokenAndReTryGetRequest<T: Decodable>(with url: URL) async throws -> T {
         let token = try await AuthManager.shared.getNewToken()
         var urlRequest = URLRequest(url: url)
         urlRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
