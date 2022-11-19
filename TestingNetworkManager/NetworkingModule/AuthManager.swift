@@ -7,40 +7,29 @@
 
 import Foundation
 
-enum KeychainError: Error {
-    // Attempted read for an item that does not exist.
-    case itemNotFound
-    
-    // Attempted save to override an existing item.
-    // Use update instead of save to update existing items
-    case duplicateItem
-    
-    // A read of an item in any format other than Data
-    case invalidItemFormat
-    
-    // Any operation result status than errSecSuccess
-    case unexpectedStatus(OSStatus)
-    
-    case unexpectedStatusWithString(String, OSStatus, String)
-}
-
 actor AuthManager {
     typealias Token = String
+    typealias Parameters = [String: Any]
     static let shared = AuthManager()
     private init() {}
     
     private var username: String?
     private var password: String?
+    private var token: [Token: LoaderStatus] = [:]
     
     private let tokenLocation = "access-token"
     private let usernameLocation = "username"
     private let passwordLocation = "password"
     private let accountLocation = "network-app"
     
+    private enum LoaderStatus {
+        case inProgress(Task<Token, Error>)
+    }
+    
     func getCurrentToken() async throws -> Token {
         let tokenAsData = try await getTokenFromKeychain()
         let currentToken = String(data: tokenAsData, encoding: .utf8)
-
+        
         if let currentToken {
             return currentToken
         } else {
@@ -49,39 +38,39 @@ actor AuthManager {
     }
     
     func getTokenFromKeychain() async throws -> Data {
-       let query: [String: AnyObject] = [
-           kSecAttrService as String: tokenLocation as AnyObject,
-           kSecAttrAccount as String: accountLocation as AnyObject,
-           kSecClass as String: kSecClassGenericPassword,
-           kSecMatchLimit as String: kSecMatchLimitOne,
-           kSecReturnData as String: kCFBooleanTrue
-       ]
-       
-       var itemCopy: AnyObject?
-       let status = SecItemCopyMatching(
-           query as CFDictionary,
-           &itemCopy
-       )
-       
-       guard status != errSecItemNotFound else {
-           throw ServerError.missingToken
-       }
-       
-       guard status == errSecSuccess else {
-           throw ServerError.generic
-       }
-       
-       guard let password = itemCopy as? Data else {
-           throw KeychainError.invalidItemFormat
-       }
-       
-       return password
-   }
-    
-    func updateToken(item: Data, service: String, account: String) async throws {
         let query: [String: AnyObject] = [
-            kSecAttrService as String: service as AnyObject,
-            kSecAttrAccount as String: account as AnyObject,
+            kSecAttrService as String: tokenLocation as AnyObject,
+            kSecAttrAccount as String: accountLocation as AnyObject,
+            kSecClass as String: kSecClassGenericPassword,
+            kSecMatchLimit as String: kSecMatchLimitOne,
+            kSecReturnData as String: kCFBooleanTrue
+        ]
+        
+        var itemCopy: AnyObject?
+        let status = SecItemCopyMatching(
+            query as CFDictionary,
+            &itemCopy
+        )
+        
+        guard status != errSecItemNotFound else {
+            throw ServerError.missingToken
+        }
+        
+        guard status == errSecSuccess else {
+            throw ServerError.generic
+        }
+        
+        guard let token = itemCopy as? Data else {
+            throw ServerError.missingToken
+        }
+        
+        return token
+    }
+    
+    func updateToken(item: Data) async throws {
+        let query: [String: AnyObject] = [
+            kSecAttrService as String: tokenLocation as AnyObject,
+            kSecAttrAccount as String: accountLocation as AnyObject,
             kSecClass as String: kSecClassGenericPassword
         ]
         
@@ -103,6 +92,66 @@ actor AuthManager {
         }
     }
     
+    func getUsernameFromKeychain() async throws -> Data {
+        let query: [String: AnyObject] = [
+            kSecAttrService as String: usernameLocation as AnyObject,
+            kSecAttrAccount as String: accountLocation as AnyObject,
+            kSecClass as String: kSecClassGenericPassword,
+            kSecMatchLimit as String: kSecMatchLimitOne,
+            kSecReturnData as String: kCFBooleanTrue
+        ]
+        
+        var itemCopy: AnyObject?
+        let status = SecItemCopyMatching(
+            query as CFDictionary,
+            &itemCopy
+        )
+        
+        guard status != errSecItemNotFound else {
+            throw ServerError.missingToken
+        }
+        
+        guard status == errSecSuccess else {
+            throw ServerError.generic
+        }
+        
+        guard let username = itemCopy as? Data else {
+            throw ServerError.missingToken
+        }
+        
+        return username
+    }
+    
+    func getPasswordFromKeychain() async throws -> Data {
+        let query: [String: AnyObject] = [
+            kSecAttrService as String: passwordLocation as AnyObject,
+            kSecAttrAccount as String: accountLocation as AnyObject,
+            kSecClass as String: kSecClassGenericPassword,
+            kSecMatchLimit as String: kSecMatchLimitOne,
+            kSecReturnData as String: kCFBooleanTrue
+        ]
+        
+        var itemCopy: AnyObject?
+        let status = SecItemCopyMatching(
+            query as CFDictionary,
+            &itemCopy
+        )
+        
+        guard status != errSecItemNotFound else {
+            throw ServerError.missingToken
+        }
+        
+        guard status == errSecSuccess else {
+            throw ServerError.generic
+        }
+        
+        guard let password = itemCopy as? Data else {
+            throw ServerError.missingToken
+        }
+        
+        return password
+    }
+    
     func deleteToken(service: String, account: String) throws {
         let query: [String: AnyObject] = [
             kSecAttrService as String: service as AnyObject,
@@ -113,31 +162,52 @@ actor AuthManager {
         let status = SecItemDelete(query as CFDictionary)
         
         guard status == errSecSuccess else {
-            throw KeychainError.unexpectedStatus(status)
+            throw ServerError.generic
         }
     }
     
-    func refreshToken() async throws -> Token {
-        if let refreshTask = refreshTask {
-            return try await refreshTask.value
+    func getNewToken() async throws -> Token {
+        let currentToken = ""
+        if let status = token[currentToken] {
+            switch status {
+            case .inProgress(let task):
+                /*
+                 If we encounter an in-progress task, we await the task's
+                 value to obtain the Token without creating a duplicate task
+                 */
+                return try await task.value
+                
+            }
         }
         
-        let task = Task { () throws -> Token in
-            defer { refreshTask = nil }
+        let task: Task<Token, Error> = Task {
+            let usernameData = try await getUsernameFromKeychain()
+            let passwordData = try await getPasswordFromKeychain()
             
-            // TODO: Make network request to get new token e.g.
-            // return await networking.refreshToken(withRefreshToken: token.refreshToken)
+            let username = String(data: usernameData, encoding: .utf8)
+            let password = String(data: passwordData, encoding: .utf8)
             
-            // Generating a dummy token
-            let newToken = Token.init(isValid: true, value: "DummyToken")
-            currentToken = newToken
+            guard let username, let password else {
+                throw ServerError.missingToken
+            }
             
-            return newToken
+            let token = try await NetworkManager.shared.login(username: username, password: password)
+            let accessTokenData = Data(token.utf8)
+            
+            do {
+                try await updateToken(item: accessTokenData)
+                return token
+                
+            } catch {
+                throw ServerError.missingToken
+            }
         }
         
-        self.refreshTask = task
+        token[currentToken] = .inProgress(task)
         
-        return try await task.value
+        let tokenFromTask = try await task.value
+        
+        return tokenFromTask
     }
 }
 

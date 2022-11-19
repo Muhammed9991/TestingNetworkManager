@@ -54,11 +54,8 @@ struct CustomLoginScreen: View {
                         Task {
                             do {
                                 let accessToken = try await NetworkManager.shared.login(
-                                    with: LoginApi.logIn.path,
-                                    with: [
-                                        "username": "hello@gmail.com",
-                                        "password": "12345"
-                                    ]
+                                    username: "hello@gmail.com",
+                                    password: "12345"
                                 )
                                 
                                 username = "hello@gmail.com"

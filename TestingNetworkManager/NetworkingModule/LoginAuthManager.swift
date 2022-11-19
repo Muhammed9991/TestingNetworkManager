@@ -17,6 +17,11 @@ Main responsilbilties of this Actor is to:
 Note: this is only ran once at login. Thats why this is in its own Actor.
 """
 
+enum KeychainError: Error {
+    // Any operation result status than errSecSuccess
+    case unexpectedStatusWithString(String, OSStatus, String)
+}
+
 actor LoginAuthManager {
     static let shared = LoginAuthManager()
     private init() {}
