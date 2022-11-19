@@ -20,6 +20,8 @@ enum KeychainError: Error {
     
     // Any operation result status than errSecSuccess
     case unexpectedStatus(OSStatus)
+    
+    case unexpectedStatusWithString(String, OSStatus, String)
 }
 
 actor AuthManager {
@@ -30,8 +32,13 @@ actor AuthManager {
     private var username: String?
     private var password: String?
     
+    private let tokenLocation = "access-token"
+    private let usernameLocation = "username"
+    private let passwordLocation = "password"
+    private let accountLocation = "network-app"
+    
     func getCurrentToken() async throws -> Token {
-        let tokenAsData = try await getToken(service: "access-token", account: "app")
+        let tokenAsData = try await getTokenFromKeychain()
         let currentToken = String(data: tokenAsData, encoding: .utf8)
 
         if let currentToken {
@@ -40,28 +47,36 @@ actor AuthManager {
             throw ServerError.invalidAuthToken
         }
     }
-
-    func saveToken(item: Data, service: String, account: String) async throws {
-        
-        let query: [String: AnyObject] = [
-            
-            kSecAttrService as String: service as AnyObject,
-            kSecAttrAccount as String: account as AnyObject,
-            kSecClass as String: kSecClassGenericPassword,
-            kSecValueData as String: item as AnyObject
-        ]
-        
-        let status = SecItemAdd(
-            query as CFDictionary,
-            nil
-        )
-        
-        if status == errSecDuplicateItem {
-            try await updateToken(item: item, service: service, account: account)
-        } else if  status == errSecSuccess {
-            throw KeychainError.unexpectedStatus(status)
-        }
-    }
+    
+    func getTokenFromKeychain() async throws -> Data {
+       let query: [String: AnyObject] = [
+           kSecAttrService as String: tokenLocation as AnyObject,
+           kSecAttrAccount as String: accountLocation as AnyObject,
+           kSecClass as String: kSecClassGenericPassword,
+           kSecMatchLimit as String: kSecMatchLimitOne,
+           kSecReturnData as String: kCFBooleanTrue
+       ]
+       
+       var itemCopy: AnyObject?
+       let status = SecItemCopyMatching(
+           query as CFDictionary,
+           &itemCopy
+       )
+       
+       guard status != errSecItemNotFound else {
+           throw ServerError.missingToken
+       }
+       
+       guard status == errSecSuccess else {
+           throw ServerError.generic
+       }
+       
+       guard let password = itemCopy as? Data else {
+           throw KeychainError.invalidItemFormat
+       }
+       
+       return password
+   }
     
     func updateToken(item: Data, service: String, account: String) async throws {
         let query: [String: AnyObject] = [
@@ -80,42 +95,12 @@ actor AuthManager {
         )
         
         guard status != errSecItemNotFound else {
-            throw KeychainError.itemNotFound
+            throw ServerError.missingToken
         }
         
         guard status == errSecSuccess else {
-            throw KeychainError.unexpectedStatus(status)
+            throw ServerError.generic
         }
-    }
-    
-     func getToken(service: String, account: String) async throws -> Data {
-        let query: [String: AnyObject] = [
-            kSecAttrService as String: service as AnyObject,
-            kSecAttrAccount as String: account as AnyObject,
-            kSecClass as String: kSecClassGenericPassword,
-            kSecMatchLimit as String: kSecMatchLimitOne,
-            kSecReturnData as String: kCFBooleanTrue
-        ]
-        
-        var itemCopy: AnyObject?
-        let status = SecItemCopyMatching(
-            query as CFDictionary,
-            &itemCopy
-        )
-        
-        guard status != errSecItemNotFound else {
-            throw KeychainError.itemNotFound
-        }
-        
-        guard status == errSecSuccess else {
-            throw KeychainError.unexpectedStatus(status)
-        }
-        
-        guard let password = itemCopy as? Data else {
-            throw KeychainError.invalidItemFormat
-        }
-        
-        return password
     }
     
     func deleteToken(service: String, account: String) throws {
