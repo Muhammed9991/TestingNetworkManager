@@ -45,9 +45,12 @@ struct CustomLoginScreen: View {
                     }
                     
                     
-                    NavigationLink(destination: HttpGetTestView(), isActive: $authenticationDidSucceed) {
-                        EmptyView()
-                    }
+                    NavigationLink(
+                        destination: HttpGetWithLogoutButton(
+                            authenticationDidSucceed: $authenticationDidSucceed
+                        ),
+                        isActive: $authenticationDidSucceed
+                    ) { EmptyView() }
                     
                     Button {
                         print("Login Button tapped")
@@ -72,6 +75,9 @@ struct CustomLoginScreen: View {
                                 try await LoginAuthManager.shared.saveToken(accessTokenData)
                                 try await LoginAuthManager.shared.saveUsername(userNameData)
                                 try await LoginAuthManager.shared.savePassword(passwordData)
+                                
+                                username = ""
+                                password = ""
                         
                             } catch {
                                 authenticationDidFail = true
@@ -80,7 +86,7 @@ struct CustomLoginScreen: View {
                         }
                         dimissKeyboard = false
                     } label: {
-                        LoginButtonContent()
+                        GenericButton(buttonText: "LOGIN")
                     }
                 }
                 .padding()

@@ -13,8 +13,6 @@ struct HttpGetWithLogoutButton: View {
     @State private var id: Int = 1
     @State private var createdAt: String = ""
     @Binding var authenticationDidSucceed: Bool
-    @Binding var username: String
-    @Binding var password: String
     
     
     var body: some View {
@@ -47,8 +45,6 @@ struct HttpGetWithLogoutButton: View {
 
                     
                         authenticationDidSucceed = false
-                        username = ""
-                        password = ""
                 
                     } catch {
                         print("Unable to Log out:", error)
@@ -90,9 +86,7 @@ struct HttpGetWithLogoutButton: View {
 struct HttpGetWithLogoutButton_Previews: PreviewProvider {
     static var previews: some View {
         HttpGetWithLogoutButton(
-            authenticationDidSucceed: .constant(true),
-            username: .constant(""),
-            password: .constant("")
+            authenticationDidSucceed: .constant(true)
         )
     }
 }
