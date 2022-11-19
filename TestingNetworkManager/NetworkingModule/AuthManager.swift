@@ -152,10 +152,10 @@ actor AuthManager {
         return password
     }
     
-    func deleteToken(service: String, account: String) throws {
+    func deleteItemFromKeychain(service: String) throws {
         let query: [String: AnyObject] = [
             kSecAttrService as String: service as AnyObject,
-            kSecAttrAccount as String: account as AnyObject,
+            kSecAttrAccount as String: accountLocation as AnyObject,
             kSecClass as String: kSecClassGenericPassword
         ]
         
