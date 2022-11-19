@@ -129,9 +129,10 @@ struct UserImage: View {
     }
 }
 
-struct LoginButtonContent: View {
+struct GenericButton: View {
+    let buttonText: String
     var body: some View {
-        Text("LOGIN")
+        Text(buttonText)
             .font(.headline)
             .foregroundColor(.white)
             .padding()
