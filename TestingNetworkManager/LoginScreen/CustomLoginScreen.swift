@@ -69,8 +69,12 @@ struct CustomLoginScreen: View {
                                 let _ = print("password: ", password)
                                 
                                 let accessTokenData = Data(accessToken.utf8)
-                                
-                                try await AuthManager.shared.saveToken(item: accessTokenData, service: "access-token", account: "app")
+                                let userNameData = Data(username.utf8)
+                                let passwordData = Data(password.utf8)
+
+                                try await LoginAuthManager.shared.saveToken(accessTokenData)
+                                try await LoginAuthManager.shared.saveUsername(userNameData)
+                                try await LoginAuthManager.shared.savePassword(passwordData)
                         
                             } catch {
                                 authenticationDidFail = true
