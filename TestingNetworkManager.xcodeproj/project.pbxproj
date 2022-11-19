@@ -18,6 +18,7 @@
 		7962CCC22916B89500D4BB12 /* CustomLoginScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7962CCC12916B89500D4BB12 /* CustomLoginScreen.swift */; };
 		7962CCC42916F86500D4BB12 /* APIEndPoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7962CCC32916F86500D4BB12 /* APIEndPoints.swift */; };
 		7965B52D2928D85F00DAE0D8 /* LoginAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7965B52C2928D85F00DAE0D8 /* LoginAuthManager.swift */; };
+		7965B54B29291D2000DAE0D8 /* HttpGetWithLogoutButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7965B54A29291D2000DAE0D8 /* HttpGetWithLogoutButton.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,6 +34,7 @@
 		7962CCC12916B89500D4BB12 /* CustomLoginScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomLoginScreen.swift; sourceTree = "<group>"; };
 		7962CCC32916F86500D4BB12 /* APIEndPoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIEndPoints.swift; sourceTree = "<group>"; };
 		7965B52C2928D85F00DAE0D8 /* LoginAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginAuthManager.swift; sourceTree = "<group>"; };
+		7965B54A29291D2000DAE0D8 /* HttpGetWithLogoutButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HttpGetWithLogoutButton.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,6 +102,7 @@
 			children = (
 				7962CCA22916ABCC00D4BB12 /* HttpGetTestView.swift */,
 				7962CCB62916B21D00D4BB12 /* HttpPostTestView.swift */,
+				7965B54A29291D2000DAE0D8 /* HttpGetWithLogoutButton.swift */,
 			);
 			path = HttpMethodTestsWithoutToken;
 			sourceTree = "<group>";
@@ -182,6 +185,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7965B54B29291D2000DAE0D8 /* HttpGetWithLogoutButton.swift in Sources */,
 				7962CCAF2916ABDE00D4BB12 /* NetworkManager.swift in Sources */,
 				7962CCA32916ABCC00D4BB12 /* HttpGetTestView.swift in Sources */,
 				7962CCA12916ABCC00D4BB12 /* TestingNetworkManagerApp.swift in Sources */,
