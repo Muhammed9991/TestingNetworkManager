@@ -26,6 +26,14 @@ struct HttpGetWithLogoutButton: View {
                 Text(createdAt)
             }
             
+            GetImage(
+                urlString: "https://developer.apple.com/news/images/og/swiftui-og.png",
+                errorPlaceHolder: Color.red,
+                placeholder: Color.blue
+            )
+            .frame(width: 600, height: 300)
+            .clipShape(RoundedRectangle(cornerRadius: 25))
+            
             Spacer()
             
             Button {
