@@ -19,6 +19,7 @@
 		7962CCC42916F86500D4BB12 /* APIEndPoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7962CCC32916F86500D4BB12 /* APIEndPoints.swift */; };
 		7965B52D2928D85F00DAE0D8 /* LoginAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7965B52C2928D85F00DAE0D8 /* LoginAuthManager.swift */; };
 		7965B54B29291D2000DAE0D8 /* HttpGetWithLogoutButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7965B54A29291D2000DAE0D8 /* HttpGetWithLogoutButton.swift */; };
+		79DAFB37292A262D0029F7B1 /* AsynGetImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DAFB36292A262D0029F7B1 /* AsynGetImage.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +36,7 @@
 		7962CCC32916F86500D4BB12 /* APIEndPoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIEndPoints.swift; sourceTree = "<group>"; };
 		7965B52C2928D85F00DAE0D8 /* LoginAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginAuthManager.swift; sourceTree = "<group>"; };
 		7965B54A29291D2000DAE0D8 /* HttpGetWithLogoutButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HttpGetWithLogoutButton.swift; sourceTree = "<group>"; };
+		79DAFB36292A262D0029F7B1 /* AsynGetImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsynGetImage.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,6 +105,7 @@
 				7962CCA22916ABCC00D4BB12 /* HttpGetTestView.swift */,
 				7962CCB62916B21D00D4BB12 /* HttpPostTestView.swift */,
 				7965B54A29291D2000DAE0D8 /* HttpGetWithLogoutButton.swift */,
+				79DAFB36292A262D0029F7B1 /* AsynGetImage.swift */,
 			);
 			path = HttpMethodTestsWithoutToken;
 			sourceTree = "<group>";
@@ -193,6 +196,7 @@
 				7965B52D2928D85F00DAE0D8 /* LoginAuthManager.swift in Sources */,
 				7962CCC22916B89500D4BB12 /* CustomLoginScreen.swift in Sources */,
 				7962CCB72916B21D00D4BB12 /* HttpPostTestView.swift in Sources */,
+				79DAFB37292A262D0029F7B1 /* AsynGetImage.swift in Sources */,
 				7962CCB32916AC5D00D4BB12 /* AuthManager.swift in Sources */,
 				7962CCC42916F86500D4BB12 /* APIEndPoints.swift in Sources */,
 			);
